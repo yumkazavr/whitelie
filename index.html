@@ -237,8 +237,23 @@
             setTimeout(hideLoader, 2500);
         });
     </script>
+    <script>
+        const favicons = [
+            "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>",
+            "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>",
+            "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌟</text></svg>",
+            "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💫</text></svg>"
+        ];
 
+        let currentFav = 0;
+        const link = document.createElement('link');
+        link.rel = 'icon';
+        document.head.appendChild(link);
+
+        setInterval(() => {
+            link.href = favicons[currentFav];
+            currentFav = (currentFav + 1) % favicons.length;
+        }, 400);
+    </script>
 </body>
 </html>
-
-
