@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Preset Name</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            background: #0a0a0f;
+            color: #e8e6e3;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .loader-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+
+        .loader-wrapper.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .stars-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) ease-in-out infinite;
+            opacity: 0;
+        }
+
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 0;
+                transform: scale(0.5);
+                filter: blur(1px);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+                filter: blur(0px);
+                box-shadow: 0 0 10px #fff, 0 0 20px #b8a9ff, 0 0 30px #a594f9;
+            }
+        }
+
+        .loader-text {
+            position: relative;
+            z-index: 10;
+            font-size: 1.5rem;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #a594f9, #e8e6e3, #a594f9);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 2s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .music-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(165, 148, 249, 0.2);
+            border: 1px solid rgba(165, 148, 249, 0.5);
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .music-toggle:hover {
+            background: rgba(165, 148, 249, 0.4);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(165, 148, 249, 0.5);
+        }
+
+        .sound-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 24px;
+        }
+
+        .bar {
+            width: 4px;
+            background: #e8e6e3;
+            border-radius: 2px;
+            height: 5px;
+            transition: height 0.2s ease;
+        }
+
+        .music-toggle.playing .bar {
+            animation: soundBars 0.5s ease infinite alternate;
+        }
+
+        .music-toggle.playing .bar:nth-child(1) { animation-delay: 0s; }
+        .music-toggle.playing .bar:nth-child(2) { animation-delay: 0.1s; }
+        .music-toggle.playing .bar:nth-child(3) { animation-delay: 0.2s; }
+        .music-toggle.playing .bar:nth-child(4) { animation-delay: 0.3s; }
+
+        @keyframes soundBars {
+            0% { height: 5px; }
+            100% { height: 20px; }
+        }
+
+        .music-toggle:not(.playing) .bar {
+            height: 5px !important;
+            animation: none !important;
+        }
+
+        .main-content {
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(90deg, #a594f9, #e8e6e3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="loader-wrapper" id="loader">
+        <div class="stars-container" id="stars"></div>
+        <span class="loader-text">Loading</span>
+    </div>
+
+    <button class="music-toggle" id="musicToggle" title="Toggle Music">
+        <div class="sound-bars">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+    </button>
+
+    <audio id="bgMusic" loop>
+        <source src="music/background.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="main-content">
+        <h1>✦ Your Preset Name ✦</h1>
+        <!-- ТВОЙ КОНТЕНТ ЗДЕСЬ -->
+    </div>
+
+    <script>
+        function createStars() {
+            const container = document.getElementById('stars');
+            const starCount = 150;
+
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.setProperty('--duration', (Math.random() * 3 + 1) + 's');
+                star.style.animationDelay = Math.random() * 3 + 's';
+
+                const size = Math.random() * 3 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+
+                container.appendChild(star);
+            }
+        }
+
+        function hideLoader() {
+            const loader = document.getElementById('loader');
+            loader.classList.add('hidden');
+            setTimeout(() => { loader.remove(); }, 800);
+        }
+
+        const musicToggle = document.getElementById('musicToggle');
+        const bgMusic = document.getElementById('bgMusic');
+        let isPlaying = false;
+
+        bgMusic.volume = 0.3;
+
+        musicToggle.addEventListener('click', () => {
+            if (isPlaying) {
+                bgMusic.pause();
+                musicToggle.classList.remove('playing');
+            } else {
+                bgMusic.play().catch(e => console.log('Autoplay blocked:', e));
+                musicToggle.classList.add('playing');
+            }
+            isPlaying = !isPlaying;
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            createStars();
+            setTimeout(hideLoader, 2500);
+        });
+    </script>
+
+</body>
+</html>
