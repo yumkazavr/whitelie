@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ложь во благо Господа</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&display=swap" rel="stylesheet">
 
     <style>
         * {
@@ -13,10 +13,16 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --primary: #a594f9;
+            --bg-dark: #0a0a0f;
+            --text-light: #e8e6e3;
+        }
+
         body {
             font-family: 'Cormorant Garamond', serif;
-            background: #0a0a0f;
-            color: #e8e6e3;
+            background: var(--bg-dark);
+            color: var(--text-light);
             min-height: 100vh;
             overflow-x: hidden;
         }
@@ -59,17 +65,8 @@
         }
 
         @keyframes twinkle {
-            0%, 100% {
-                opacity: 0;
-                transform: scale(0.5);
-                filter: blur(1px);
-            }
-            50% {
-                opacity: 1;
-                transform: scale(1.2);
-                filter: blur(0px);
-                box-shadow: 0 0 10px #fff, 0 0 20px #b8a9ff, 0 0 30px #a594f9;
-            }
+            0%, 100% { opacity: 0; transform: scale(0.5); filter: blur(1px); }
+            50% { opacity: 1; transform: scale(1.2); filter: blur(0px); box-shadow: 0 0 10px #fff; }
         }
 
         .loader-text {
@@ -78,7 +75,7 @@
             font-size: 1.5rem;
             letter-spacing: 8px;
             text-transform: uppercase;
-            background: linear-gradient(90deg, #a594f9, #e8e6e3, #a594f9);
+            background: linear-gradient(90deg, var(--primary), #fff, var(--primary));
             background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -110,7 +107,6 @@
         }
 
         .music-toggle:hover {
-            background: rgba(165, 148, 249, 0.4);
             transform: scale(1.1);
             box-shadow: 0 0 20px rgba(165, 148, 249, 0.5);
         }
@@ -133,7 +129,6 @@
         .music-toggle.playing .bar {
             animation: soundBars 0.5s ease infinite alternate;
         }
-
         .music-toggle.playing .bar:nth-child(1) { animation-delay: 0s; }
         .music-toggle.playing .bar:nth-child(2) { animation-delay: 0.1s; }
         .music-toggle.playing .bar:nth-child(3) { animation-delay: 0.2s; }
@@ -142,11 +137,6 @@
         @keyframes soundBars {
             0% { height: 5px; }
             100% { height: 20px; }
-        }
-
-        .music-toggle:not(.playing) .bar {
-            height: 5px !important;
-            animation: none !important;
         }
 
         /* ========== CONSTELLATION BACKGROUND ========== */
@@ -160,114 +150,238 @@
             pointer-events: none;
         }
 
-        #constellationCanvas {
-            width: 100%;
-            height: 100%;
-            pointer-events: auto;
-        }
-
-        /* ========== MAIN CONTENT ========== */
+        /* ========== MAIN CONTENT STRUCTURE ========== */
         .main-content {
             position: relative;
             z-index: 10;
-            padding: 40px;
+            padding: 40px 20px;
             max-width: 1200px;
             margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
         }
 
         .content-container {
+            width: 100%;
             background: rgba(15, 15, 25, 0.75);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(165, 148, 249, 0.2);
             border-radius: 20px;
             padding: 50px;
-            box-shadow:
-                0 8px 32px rgba(0, 0, 0, 0.4),
-                inset 0 0 80px rgba(165, 148, 249, 0.03);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
             position: relative;
             overflow: hidden;
         }
 
-        .content-container::before {
-            content: '';
+        .split-layout {
+            display: flex;
+            gap: 60px;
+            align-items: flex-start;
+        }
+
+        /* ========== LEFT COLUMN (CHARACTER) ========== */
+        .char-column {
+            flex: 0 0 350px; /* Fixed width for left column */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Character Image Card */
+        .char-card {
+            width: 100%;
+            aspect-ratio: 3/4;
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            border: 1px solid rgba(165, 148, 249, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .char-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(165, 148, 249, 0.2);
+        }
+
+        .char-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: filter 0.5s ease;
+        }
+
+        .char-name-overlay {
             position: absolute;
             top: 0;
             left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg,
-                transparent,
-                rgba(165, 148, 249, 0.5),
-                transparent
-            );
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 15, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
         }
 
-        .content-container::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
+        .char-name-text {
+            font-size: 2rem;
+            color: var(--primary);
+            text-shadow: 0 0 10px var(--primary);
+            transform: translateY(20px);
+            transition: transform 0.5s ease;
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+
+        /* Revealed State */
+        .char-card.revealed img {
+            filter: blur(4px) grayscale(50%);
+        }
+
+        .char-card.revealed .char-name-overlay {
+            opacity: 1;
+        }
+
+        .char-card.revealed .char-name-text {
+            transform: translateY(0);
+        }
+
+        /* Star Divider */
+        .star-divider {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            margin: 30px 0;
+            color: var(--primary);
+            opacity: 0.8;
+        }
+
+        .divider-line {
+            flex: 1;
             height: 1px;
-            background: linear-gradient(90deg,
-                transparent,
-                rgba(165, 148, 249, 0.3),
-                transparent
-            );
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+        }
+
+        .divider-icon {
+            margin: 0 15px;
+            font-size: 1.5rem;
+            animation: spinSlow 10s linear infinite;
+        }
+
+        @keyframes spinSlow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Quote */
+        .song-quote {
+            text-align: center;
+            font-style: italic;
+            color: #b8b8c8;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, rgba(165, 148, 249, 0.2), rgba(165, 148, 249, 0.4));
+            border: 1px solid var(--primary);
+            color: white;
+            box-shadow: 0 0 10px rgba(165, 148, 249, 0.1);
+        }
+
+        .btn-primary:hover {
+            background: rgba(165, 148, 249, 0.6);
+            box-shadow: 0 0 20px rgba(165, 148, 249, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid rgba(232, 230, 227, 0.3);
+            color: #ccc;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(165, 148, 249, 0.05);
+        }
+
+        /* ========== RIGHT COLUMN (TEXT) ========== */
+        .text-column {
+            flex: 1;
+            padding-top: 20px;
         }
 
         h1 {
-            font-size: 3rem;
-            text-align: center;
+            font-size: 3.5rem;
             margin-bottom: 2rem;
             background: linear-gradient(90deg, #a594f9, #e8e6e3, #a594f9);
             background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             animation: shimmer 3s linear infinite;
-            text-shadow: 0 0 40px rgba(165, 148, 249, 0.3);
         }
 
         .content-text {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             line-height: 1.8;
             color: #c9c5c0;
         }
 
-        /* ========== GLOW EFFECTS ========== */
-        .corner-glow {
-            position: absolute;
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            filter: blur(60px);
-            opacity: 0.4;
-            pointer-events: none;
-        }
+        /* Responsive */
+        @media (max-width: 900px) {
+            .split-layout {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .char-column {
+                width: 100%;
+                max-width: 400px;
+                flex: none;
+            }
 
-        .corner-glow.top-left {
-            top: -50px;
-            left: -50px;
-            background: rgba(165, 148, 249, 0.3);
-        }
-
-        .corner-glow.bottom-right {
-            bottom: -50px;
-            right: -50px;
-            background: rgba(184, 169, 255, 0.3);
+            .text-column {
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- LOADER -->
     <div class="loader-wrapper" id="loader">
         <div class="stars-container" id="stars"></div>
         <span class="loader-text">Loading</span>
     </div>
 
-    <!-- MUSIC BUTTON -->
     <button class="music-toggle" id="musicToggle" title="Музицирование~♪">
         <div class="sound-bars">
             <div class="bar"></div>
@@ -281,32 +395,65 @@
         <source src="HOYO-MiX_-_When_Darkness_Spreads_(musmore.org).mp3" type="audio/mpeg">
     </audio>
 
-    <!-- CONSTELLATION BACKGROUND -->
     <div class="constellation-bg">
         <canvas id="constellationCanvas"></canvas>
     </div>
 
-    <!-- MAIN CONTENT -->
     <div class="main-content">
         <div class="content-container">
-            <div class="corner-glow top-left"></div>
-            <div class="corner-glow bottom-right"></div>
+            
+            <div class="split-layout">
+                <div class="char-column">
+                    <div class="char-card" id="charCard">
+                        <img src="https://i.pinimg.com/736x/8d/71/66/8d71663733075677864f1b402030f2f7.jpg" alt="Character Portrait">
+                        <div class="char-name-overlay">
+                            <span class="char-name-text">ОТТО</span>
+                        </div>
+                    </div>
 
-            <h1>✦ Ложь во благо Господа ✦</h1>
+                    <div class="star-divider">
+                        <div class="divider-line"></div>
+                        <div class="divider-icon">✵</div>
+                        <div class="divider-line"></div>
+                    </div>
 
-            <div class="content-text">
-                <!-- ТВОЙ КОНТЕНТ ЗДЕСЬ -->
-                <p>Добро пожаловать в мир, где правда — лишь одна из версий лжи.</p>
+                    <p class="song-quote">
+                        "В отражении зеркал я вижу не себя,<br>
+                        А тень того, кем должен был я стать."
+                    </p>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="alert('Скачивание началось...')">Скачать</button>
+                        <button class="btn btn-secondary" onclick="alert('Информация загружается...')">Узнать больше</button>
+                    </div>
+                </div>
+
+                <div class="text-column">
+                    <h1>✦ Ложь во благо Господа ✦</h1>
+                    <div class="content-text">
+                        <p>Добро пожаловать в мир, где границы между праведностью и грехом размыты вечной ночью. Здесь звёзды шепчут тайны, которые лучше не знать, а молитвы возносятся к богам, давно покинувшим этот небосвод.</p>
+                        <br>
+                        <p>Каждый ваш шаг эхом отзывается в пустоте. Готовы ли вы пожертвовать истиной ради спасения души? Или же ложь станет вашим единственным оружием в борьбе против неизбежного?</p>
+                        <br>
+                        <p><em>Выберите свой путь, но помните: у каждого чуда есть своя цена.</em></p>
+                    </div>
+                </div>
             </div>
+
         </div>
     </div>
 
     <script>
+        // ========== CHARACTER CARD INTERACTION ==========
+        const charCard = document.getElementById('charCard');
+        charCard.addEventListener('click', () => {
+            charCard.classList.toggle('revealed');
+        });
+
         // ========== LOADER STARS ==========
         function createStars() {
             const container = document.getElementById('stars');
             const starCount = 150;
-
             for (let i = 0; i < starCount; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
@@ -314,11 +461,9 @@
                 star.style.top = Math.random() * 100 + '%';
                 star.style.setProperty('--duration', (Math.random() * 3 + 1) + 's');
                 star.style.animationDelay = Math.random() * 3 + 's';
-
                 const size = Math.random() * 3 + 1;
                 star.style.width = size + 'px';
                 star.style.height = size + 'px';
-
                 container.appendChild(star);
             }
         }
@@ -333,7 +478,6 @@
         const musicToggle = document.getElementById('musicToggle');
         const bgMusic = document.getElementById('bgMusic');
         let isPlaying = false;
-
         bgMusic.volume = 0.3;
 
         musicToggle.addEventListener('click', () => {
@@ -350,17 +494,14 @@
         // ========== CONSTELLATION CANVAS ==========
         const canvas = document.getElementById('constellationCanvas');
         const ctx = canvas.getContext('2d');
-
         let particles = [];
         let mouse = { x: null, y: null, radius: 150 };
 
-        // Resize canvas
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         }
 
-        // Particle class
         class Particle {
             constructor() {
                 this.x = Math.random() * canvas.width;
@@ -373,7 +514,6 @@
                 this.twinkleSpeed = Math.random() * 0.02 + 0.01;
                 this.twinkleOffset = Math.random() * Math.PI * 2;
             }
-
             draw() {
                 const twinkle = Math.sin(Date.now() * this.twinkleSpeed + this.twinkleOffset) * 0.3 + 0.7;
                 ctx.fillStyle = `rgba(165, 148, 249, ${this.alpha * twinkle})`;
@@ -381,19 +521,14 @@
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.closePath();
                 ctx.fill();
-
-                // Glow effect
                 ctx.shadowBlur = 15;
                 ctx.shadowColor = 'rgba(165, 148, 249, 0.5)';
             }
-
             update() {
-                // Mouse interaction
                 if (mouse.x != null && mouse.y != null) {
                     let dx = mouse.x - this.x;
                     let dy = mouse.y - this.y;
                     let distance = Math.sqrt(dx * dx + dy * dy);
-
                     if (distance < mouse.radius) {
                         let forceDirectionX = dx / distance;
                         let forceDirectionY = dy / distance;
@@ -401,13 +536,10 @@
                         let force = (maxDistance - distance) / maxDistance;
                         let directionX = forceDirectionX * force * this.density * 0.6;
                         let directionY = forceDirectionY * force * this.density * 0.6;
-
                         this.x -= directionX;
                         this.y -= directionY;
                     }
                 }
-
-                // Return to base position
                 let dx = this.baseX - this.x;
                 let dy = this.baseY - this.y;
                 this.x += dx * 0.05;
@@ -415,24 +547,20 @@
             }
         }
 
-        // Initialize particles
         function initParticles() {
             particles = [];
             const numberOfParticles = Math.floor((canvas.width * canvas.height) / 8000);
-
             for (let i = 0; i < numberOfParticles; i++) {
                 particles.push(new Particle());
             }
         }
 
-        // Draw connections between particles
         function connectParticles() {
             for (let a = 0; a < particles.length; a++) {
                 for (let b = a + 1; b < particles.length; b++) {
                     let dx = particles[a].x - particles[b].x;
                     let dy = particles[a].y - particles[b].y;
                     let distance = Math.sqrt(dx * dx + dy * dy);
-
                     if (distance < 120) {
                         let opacity = (1 - distance / 120) * 0.3;
                         ctx.strokeStyle = `rgba(165, 148, 249, ${opacity})`;
@@ -446,71 +574,39 @@
             }
         }
 
-        // Animation loop
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
             for (let particle of particles) {
                 particle.update();
                 particle.draw();
             }
-
             connectParticles();
             requestAnimationFrame(animate);
         }
 
-        // Mouse events
-        canvas.addEventListener('mousemove', (e) => {
-            mouse.x = e.x;
-            mouse.y = e.y;
-        });
-
-        canvas.addEventListener('mouseleave', () => {
-            mouse.x = null;
-            mouse.y = null;
-        });
-
-        // Touch support for mobile
-        canvas.addEventListener('touchmove', (e) => {
-            mouse.x = e.touches[0].clientX;
-            mouse.y = e.touches[0].clientY;
-        });
-
-        canvas.addEventListener('touchend', () => {
-            mouse.x = null;
-            mouse.y = null;
-        });
-
-        // Window resize
-        window.addEventListener('resize', () => {
-            resizeCanvas();
-            initParticles();
-        });
+        canvas.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
+        canvas.addEventListener('mouseleave', () => { mouse.x = null; mouse.y = null; });
+        window.addEventListener('resize', () => { resizeCanvas(); initParticles(); });
 
         // ========== INIT ==========
         document.addEventListener('DOMContentLoaded', () => {
             createStars();
             setTimeout(hideLoader, 2500);
-
             resizeCanvas();
             initParticles();
             animate();
         });
-    </script>
 
-    <!-- ANIMATED FAVICON -->
-    <script>
+        // ANIMATED FAVICON
         const favicons = [
             "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>",
             "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌟</text></svg>",
             "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💫</text></svg>"
         ];
-
         let currentFav = 0;
         const link = document.createElement('link');
         link.rel = 'icon';
         document.head.appendChild(link);
-
         setInterval(() => {
             link.href = favicons[currentFav];
             currentFav = (currentFav + 1) % favicons.length;
